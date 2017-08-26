@@ -53,7 +53,7 @@
 那么你的对应输出结构体 ``outputStruct`` 应该是:
 ```go
  type inputStruct struct {
-	 Id   int64  `json:"id"`   
+     Id   int64  `json:"id"`   
      Age  int64  `json:"age"` 
  }
 ```
