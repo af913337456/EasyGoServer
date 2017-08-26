@@ -10,6 +10,8 @@
 
 > 联系方式 / Contact：913337456@qq.com
 
+LICENSE：Apache
+
 ----------
 
 [TOC]
