@@ -13,6 +13,15 @@
 ----------
 
 [TOC]
+----- 概述
+----- 脚本介绍
+--------- Linux
+--------- Windows
+--------- Mac
+----- 使用流程
+----- 部分代码说明
+----- TODO
+
 
 ### 概述
 一个能够仅仅依赖你创建好的 sql 文件，就能 ``自动帮你生成基础服务端框架代码`` 的 go server 框架。包含有:
@@ -196,3 +205,7 @@ func update_luser_sample(w http.ResponseWriter,r *http.Request)  {
 	updateDataByStruct(request)
 }
 ```
+
+### TODO
+寻找自愿者帮忙翻译英文版文档
+
