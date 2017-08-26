@@ -1,0 +1,11 @@
+{
+
+  "Host": "127.0.0.1",
+  "Port": ":8884",
+  "FilePort":":8885",
+  "DbName":"mattermost",
+  "DbUser":"root",
+  "DbPw":"123aaa",
+  "DbPort":"3306"
+
+}
