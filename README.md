@@ -35,8 +35,11 @@
 一个能够仅仅依赖你创建好的 sql 文件，就能 ``自动帮你生成基础服务端框架代码`` 的 go server 框架。包含有:
 
 1，基础的 增删改查 
+
 2，拓展性强的API
+
 3，客户端的数据传入 与 服务端的输出 全部依赖 struct
+
 * 例如你的一个输入结构体 ``inputStruct`` 设置为
 ```go
  type inputStruct struct {
