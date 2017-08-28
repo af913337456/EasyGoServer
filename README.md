@@ -54,7 +54,7 @@ LICENSE：Apache
 * 当你在使用 select 的时候，你的 sql 如果是这样的：`` select User.id , User.age from User``
 那么你的对应输出结构体 ``outputStruct`` 应该是:
 ```go
- type inputStruct struct {
+ type outputStruct struct {
      Id   int64  `json:"id"`   
      Age  int64  `json:"age"` 
  }
