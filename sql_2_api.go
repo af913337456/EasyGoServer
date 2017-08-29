@@ -24,6 +24,8 @@ import (
 	"bufio"
 )
 
+const STR_ARR_SIZE  = 50 /** 控制表的字段个数 */
+
 func main()  {
 
 	file,err := os.Open("this.sql")
@@ -39,8 +41,8 @@ func main()  {
 	isFinishOneTable := false
 	//result := ""
 	var tableName string
-	values := [20]string{}
-	valueType := [20]string{}
+	values := [STR_ARR_SIZE]string{}
+	valueType := [STR_ARR_SIZE]string{}
 	i := 0
 	deleteOld()
 	for{
@@ -61,11 +63,15 @@ func main()  {
 			tableName = getValue(line)
 			fmt.Println("表名字 "+tableName)
 			//result = "tableName: "+tableName
-		}else if strings.Contains(line,"COMMENT"){
+		}else if ((strings.Contains(line,"COMMENT") && !strings.Contains(line,"ENGINE")) ||
+			strings.Contains(line,"varchar") ||
+			strings.Contains(line,"datetime") ||
+			strings.Contains(line,"int") ){
 			//if !strings.Contains(line,"`id`") { /** 跳过主键 id */
-
 				value := getValue(line)
 				value_type := getType(line)
+				// fmt.Println("value ： "+value+"  type : "+value_type)
+				// fmt.Println("下标 ： "+strconv.FormatInt(int64(i),10))
 				values[i] = value
 				valueType[i] = value_type
 				i++
@@ -73,14 +79,16 @@ func main()  {
 		}else if strings.Contains(line,"ENGINE") {
 			isBeginOneTable  = false;
 			isFinishOneTable = true;
-
+			//fmt.Println("建表 "+tableName)
+			//fmt.Println(valueType)
+			//fmt.Println(values)
 			outputStructFile(tableName,&values,&valueType)
 			//outputSqlStrFile(tableName,"id",&values,&valueType)
 			outputFuncFile(tableName)
 
 			// 重置
-			values = [20]string{}
-			valueType = [20]string{}
+			values = [STR_ARR_SIZE]string{}
+			valueType = [STR_ARR_SIZE]string{}
 			i = 0
 		}
 	}
@@ -89,7 +97,7 @@ func main()  {
 	}
 }
 
-func outputSqlStrFile(tableName string,defaultKey string,values,valueType *[20]string)  {
+func outputSqlStrFile(tableName string,defaultKey string,values,valueType *[STR_ARR_SIZE]string)  {
 	fileName := "sql_str.go";
 	file,err := os.Create(fileName)
 	defer file.Close()
@@ -147,7 +155,7 @@ func outputFuncFile(tableName string)  {
 	newVersion(file,tableName)
 }
 
-func createValuesVar(values *[20]string) string {
+func createValuesVar(values *[STR_ARR_SIZE]string) string {
 	r := ""
 	l := len(values)
 	for i:=0 ; i<l ; i++ {
@@ -167,7 +175,7 @@ func createValuesVar(values *[20]string) string {
 	return r
 }
 
-func createUpdateSql(tableName,defaultKey string,values *[20]string) string {
+func createUpdateSql(tableName,defaultKey string,values *[STR_ARR_SIZE]string) string {
 	sqlInsert := ""
 	l := len(values)
 	for i:=0 ; i<l ; i++ {
@@ -188,7 +196,7 @@ func createUpdateSql(tableName,defaultKey string,values *[20]string) string {
 	return sql
 }
 
-func createInsertSql(tableName string,values *[20]string) string {
+func createInsertSql(tableName string,values *[STR_ARR_SIZE]string) string {
 	sqlStart := "var insert"+tableName+"Sql string = \"insert into `"+tableName+"`("
 	l := len(values)
 	breakIndex := 0
@@ -230,7 +238,7 @@ func deleteOld(){
 	os.Remove("struct.go")
 }
 
-func outputStructFile(tableName string,values,valuesType *[20]string)  {
+func outputStructFile(tableName string,values,valuesType *[STR_ARR_SIZE]string)  {
 	fileName := "struct.go";
 	isExists := checkFileAndCreate(fileName);
 	file,err := os.OpenFile(fileName,os.O_CREATE|os.O_APPEND|os.O_RDWR, 0666)
@@ -269,14 +277,15 @@ func outputStructFile(tableName string,values,valuesType *[20]string)  {
 		}else{
 			rv = strings.ToUpper(temp[0])+"_"+rv
 		}
-
-		if valuesType[i] == "int" {
-			file.WriteString("	"+rv+"			int64	`json:\""+values[i]+"\" nullTag:\"1\"`")
-			file.WriteString("\n")
-		}else if valuesType[i] == "varchar" {
-			file.WriteString("	"+rv+"			*string	`json:\""+values[i]+"\" nullTag:\"1\"`")
-			file.WriteString("\n")
-		}
+		file.WriteString("	"+rv+"			"+valuesType[i]+"	`json:\""+values[i]+"\" nullTag:\"1\"`")
+		file.WriteString("\n")
+		//if valuesType[i] == "int" {
+		//	file.WriteString("	"+rv+"			int64	`json:\""+values[i]+"\" nullTag:\"1\"`")
+		//	file.WriteString("\n")
+		//}else if valuesType[i] == "*string" {
+		//	file.WriteString("	"+rv+"			*string	`json:\""+values[i]+"\" nullTag:\"1\"`")
+		//	file.WriteString("\n")
+		//}
 	}
 }
 
@@ -298,9 +307,13 @@ func getValue(line string) string {
 }
 
 func getType(line string) string {
-	firstIndex := strings.LastIndex(line,"`")+2
-	value := Substr4(line,firstIndex,strings.LastIndex(line,"(")-firstIndex)
-	return value
+	if strings.Contains(line,"datetime") || strings.Contains(line,"varchar") {
+		return "*string";
+	}else if strings.Contains(line,"int"){
+		return "int";
+	}else {
+		return "*string"
+	}
 }
 
 func Substr4(str string, start int, length int) string {
