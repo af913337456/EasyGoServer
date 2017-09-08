@@ -70,6 +70,7 @@ LICENSE：Apache
 
 ### 适合于
 1, 快速建服务端
+
 2, 新手 golang 学者
 
 ### 脚本介绍
